@@ -1,0 +1,26 @@
+{
+  "name": "csv-to-vrt",
+  "version": "0.0.1",
+  "description": "Auto-wrap .csv's to .vrt's with semi-intelligent xy field name guessing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wpears/csv-to-vrt.git"
+  },
+  "keywords": [
+    "csv",
+    "vrt"
+  ],
+  "author": "Wyatt Pearsall <wyatt.pearsall@cfpb.gov>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wpears/csv-to-vrt/issues"
+  },
+  "homepage": "https://github.com/wpears/csv-to-vrt",
+  "devDependencies": {
+    "tape": "^4.0.0"
+  }
+}
