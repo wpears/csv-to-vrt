@@ -34,6 +34,12 @@ var template =
 
 function csvToVrt(csv, srs, cb){
 
+  if(!cb) throw new Error('Must provide callback to csvToVrt.');
+
+  if(!csv || !srs){
+    return cb(new Error('Must provide non-empty csv and spatial reference arguments to cstToVrt.')); 
+  }
+
   var name = path.basename(csv, path.extname(csv));
   var dirname = path.dirname(path.resolve(csv));
   var vrt =  path.join(dirname, name + '.vrt');
