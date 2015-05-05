@@ -1,3 +1,4 @@
+var fs = require('fs');
 var path = require('path');
 var util = require('util');
 
@@ -34,10 +35,10 @@ var template =
 
 function csvToVrt(csv, srs, cb){
 
-  if(!cb) throw new Error('Must provide callback to csvToVrt.');
+  if(!cb) throw new Error('Must provide callback as third argument to csvToVrt.');
 
   if(!csv || !srs){
-    return cb(new Error('Must provide non-empty csv and spatial reference arguments to cstToVrt.')); 
+    return cb(new Error('Must provide non-empty csv and spatial reference as first and second arguments to cstToVrt.')); 
   }
 
   var name = path.basename(csv, path.extname(csv));
