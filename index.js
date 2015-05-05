@@ -34,11 +34,6 @@ var template =
 
 function csvToVrt(csv, srs, cb){
 
-  if(typeof srs === 'function'){
-    cb = srs;
-    srs = 'NAD83';
-  }
-
   var name = path.basename(csv, path.extname(csv));
   var dirname = path.dirname(path.resolve(csv));
   var vrt =  path.join(dirname, name + '.vrt');
