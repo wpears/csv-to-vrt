@@ -22,5 +22,8 @@
   "homepage": "https://github.com/wpears/csv-to-vrt",
   "devDependencies": {
     "tape": "^4.0.0"
+  },
+  "dependencies": {
+    "read-until": "0.0.1"
   }
 }
