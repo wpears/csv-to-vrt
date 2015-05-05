@@ -41,9 +41,10 @@ function csvToVrt(csv, srs, cb){
     return cb(new Error('Must provide non-empty csv and spatial reference as first and second arguments to cstToVrt.')); 
   }
 
-  var name = path.basename(csv, path.extname(csv));
+  var csvName = path.basename(csv);
+  var basename = path.basename(csv, path.extname(csv));
   var dirname = path.dirname(path.resolve(csv));
-  var vrt =  path.join(dirname, name + '.vrt');
+  var vrt =  path.join(dirname, basename + '.vrt');
   
   readUntil(csv, '\n', function(err, buf){
     if(err) return cb(err);
@@ -64,7 +65,7 @@ function csvToVrt(csv, srs, cb){
 
     fs.writeFile(
       vrt,
-      util.format(template, name, csv, srs, x, y),
+      util.format(template, basename, csvName, srs, x, y),
       function(err){
         if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
         cb(null, vrt);
