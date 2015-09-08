@@ -23,7 +23,7 @@ var lonNames = {
   x: 1
 }
 
-var template = 
+var template =
 '<OGRVRTDataSource>' +
   '<OGRVRTLayer name="%s">' +
     '<SrcDataSource relativeToVRT="1">%s</SrcDataSource>' +
@@ -33,25 +33,32 @@ var template =
   '</OGRVRTLayer>' +
 '</OGRVRTDataSource>'
 
-function csvToVrt(csv, srs, cb){
+function csvToVrt(fileName, srs, cb){
 
   if(!cb) throw new Error('Must provide callback as third argument to csvToVrt.');
 
-  if(!csv || !srs){
-    return cb(new Error('Must provide non-empty csv and spatial reference as first and second arguments to cstToVrt.')); 
+  if(!fileName || !srs){
+    return cb(new Error('Must provide non-empty csv and spatial reference as first and second arguments to cstToVrt.'));
   }
 
-  var csvName = path.basename(csv);
-  var basename = path.basename(csv, path.extname(csv));
-  var dirname = path.dirname(path.resolve(csv));
-  var vrt =  path.join(dirname, basename + '.vrt');
-  
+  var resolved = path.resolve(fileName);
+  var extName = path.extname(resolved);
+  var basename = path.basename(resolved, extName);
+  var dirname = path.dirname(resolved);
+
+  var csv = path.join(dirname, basename + '.csv');
+  var vrt = path.join(dirname, basename + '.vrt');
+
+  if(extName !== '.csv'){
+    fs.renameSync(resolved, csv);
+  }
+
   readUntil(csv, '\n', function(err, buf){
     if(err) return cb(err);
-    var headers = buf.toString().split(/\s*,\s*/); 
+    var headers = buf.toString().split(/\s*,\s*/);
     var x;
     var y;
-     
+
     for(var i=0; i<headers.length; i++){
       var header = headers[i].toLowerCase();
       if(latNames[header]) y = header;
@@ -65,13 +72,13 @@ function csvToVrt(csv, srs, cb){
 
     fs.writeFile(
       vrt,
-      util.format(template, basename, csvName, srs, x, y),
+      util.format(template, basename, path.basename(csv), srs, x, y),
       function(err){
         if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
         cb(null, vrt);
       }
     )
-  })  
+  })
 }
 
 module.exports = csvToVrt;
