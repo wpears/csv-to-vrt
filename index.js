@@ -45,12 +45,25 @@ function csvToVrt(fileName, srs, cb){
   var extName = path.extname(resolved);
   var basename = path.basename(resolved, extName);
   var dirname = path.dirname(resolved);
+  var tmpdir = path.join(dirname, 'vrttmpdir');
 
   var csv = path.join(dirname, basename + '.csv');
-  var vrt = path.join(dirname, basename + '.vrt');
+  var tmpcsv = path.join(tmpdir, basename + '.csv');
+  var vrt = path.join(tmpdir, basename + '.vrt');
+
+  try{
+    fs.mkdirSync(tmpdir);
+  }catch(e){
+    return cb(e);
+  }
 
   if(extName !== '.csv'){
-    fs.renameSync(resolved, csv);
+    try{
+      fs.renameSync(resolved, tmpcsv);
+    }catch(e){
+      return cb(e);
+    }
+    csv = tmpcsv;
   }
 
   readUntil(csv, '\n', function(err, buf){

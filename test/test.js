@@ -6,7 +6,7 @@ test('csvToVrt tests', function(t){
   t.plan(4);
 
   csvToVrt('test/virginia.csv', 'NAD83', function(err, file){
-    t.equal(file, path.join(__dirname, 'virginia.vrt'), 'Creates vrt from valid csv.'); 
+    t.equal(file, path.join(__dirname, 'vrttmpdir/virginia.vrt'), 'Creates vrt from valid csv.'); 
   })
 
   csvToVrt('test/false.csv', 'NAD83', function(err, file){
