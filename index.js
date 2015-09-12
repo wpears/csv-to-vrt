@@ -1,4 +1,5 @@
 var fs = require('fs');
+var crypto = require('crypto');
 var path = require('path');
 var util = require('util');
 
@@ -46,13 +47,21 @@ function csvToVrt(fileName, srs, cb){
   var basename = path.basename(resolved, extName);
   var dirname = path.dirname(resolved);
   var tmpdir = path.join(dirname, 'vrttmpdir');
+  var currtmp = path.join(tmpdir, crypto.pseudoRandomBytes(10).toString('hex'));
+  var relativePos = path.join('..', '..', basename);
 
   var csv = path.join(dirname, basename + '.csv');
-  var tmpcsv = path.join(tmpdir, basename + '.csv');
-  var vrt = path.join(tmpdir, basename + '.vrt');
+  var tmpcsv = path.join(currtmp, basename + '.csv');
+  var vrt = path.join(currtmp, basename + '.vrt');
 
   try{
     fs.mkdirSync(tmpdir);
+  }catch(e){
+    //exists
+  }
+
+  try{
+    fs.mkdirSync(currtmp);
   }catch(e){
     return cb(e);
   }
@@ -60,11 +69,13 @@ function csvToVrt(fileName, srs, cb){
   if(extName !== '.csv'){
     try{
       fs.renameSync(resolved, tmpcsv);
+      relativePos = basename;
+      csv = tmpcsv;
     }catch(e){
       return cb(e);
     }
-    csv = tmpcsv;
   }
+
 
   readUntil(csv, '\n', function(err, buf){
     if(err) return cb(err);
@@ -85,7 +96,7 @@ function csvToVrt(fileName, srs, cb){
 
     fs.writeFile(
       vrt,
-      util.format(template, basename, path.basename(csv), srs, x, y),
+      util.format(template, relativePos, path.basename(csv), srs, x, y),
       function(err){
         if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
         cb(null, vrt);
