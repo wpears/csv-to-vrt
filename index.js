@@ -1,5 +1,4 @@
 var fs = require('fs');
-var crypto = require('crypto');
 var path = require('path');
 var util = require('util');
 
@@ -46,69 +45,41 @@ function csvToVrt(fileName, srs, cb){
   var extName = path.extname(resolved);
   var basename = path.basename(resolved, extName);
   var dirname = path.dirname(resolved);
-  var tmpdir = path.join(dirname, 'vrttmpdir');
-  var currtmp = path.join(tmpdir, crypto.pseudoRandomBytes(10).toString('hex'));
 
   var csv = path.join(dirname, basename + '.csv');
-  var tmpcsv = path.join(currtmp, basename + '.csv');
-  var vrt = path.join(currtmp, basename + '.vrt');
-  var relativePos = path.join('..', '..', path.basename(csv));
-
-  try{
-    fs.mkdirSync(tmpdir);
-  }catch(e){
-    //exists
-  }
-
-  try{
-    fs.mkdirSync(currtmp);
-  }catch(e){
-    return cb(e);
-  }
+  var vrt = path.join(dirname, basename + '.vrt');
 
   if(extName !== '.csv'){
-    try{
-      fs.createReadStream(resolved).pipe(fs.createWriteStream(tmpcsv)).on('finish', function(err){
-        if(err) return cb(err);
-        run();
-      });
-      relativePos = basename;
-      csv = tmpcsv;
-    }catch(e){
-      return cb(e);
+    fs.renameSync(resolved, csv);
+  }
+
+  readUntil(csv, '\n', function(err, buf){
+    if(err) return cb(err);
+    var headers = buf.toString().split(/\s*,\s*/);
+    var x;
+    var y;
+
+    for(var i=0; i<headers.length; i++){
+      var header = headers[i].toLowerCase();
+      if(latNames[header]) y = header;
+      if(lonNames[header]) x = header;
+      if(x && y) break;
     }
-  }else{
-    run();
-  }
 
-  function run(){
-    readUntil(csv, '\n', function(err, buf){
-      if(err) return cb(err);
-      var headers = buf.toString().split(/\s*,\s*/);
-      var x;
-      var y;
+    if(!(x && y)){
+      return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
+    }
 
-      for(var i=0; i<headers.length; i++){
-        var header = headers[i].toLowerCase();
-        if(latNames[header]) y = header;
-        if(lonNames[header]) x = header;
-        if(x && y) break;
+    fs.writeFile(
+      vrt,
+      util.format(template, basename, path.basename(csv), srs, x, y),
+      function(err){
+        if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
+        cb(null, vrt);
       }
-
-      if(!(x && y)){
-        return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
-      }
-
-      fs.writeFile(
-        vrt,
-        util.format(template, basename, relativePos, srs, x, y),
-        function(err){
-          if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
-          cb(null, vrt);
-        }
-      )
-    })
-  }
+    )
+  })
 }
 
 module.exports = csvToVrt;
+odule.exports = csvToVrt;
