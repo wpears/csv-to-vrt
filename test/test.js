@@ -9,7 +9,6 @@ test('csvToVrt tests', function(t){
 
   csvToVrt('test/virginia.csv', 'NAD83', function(err, file){
     t.ok(file, 'Creates vrt from valid csv.'); 
-    if(file) fs.unlinkSync(file);
   })
 
   csvToVrt('test/false.csv', 'NAD83', function(err, file){
@@ -25,11 +24,3 @@ test('csvToVrt tests', function(t){
   })
 
 })
-
-test('Cleanup', function(t){
-  t.plan(1);
-  fs.readdirSync('test/vrttmpdir').forEach(function(v){
-    fs.rmdirSync(path.join('test/vrttmpdir', v));
-  })
-  t.pass('Cleaned up.');
-});

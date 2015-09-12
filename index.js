@@ -50,7 +50,11 @@ function csvToVrt(fileName, srs, cb){
   var vrt = path.join(dirname, basename + '.vrt');
 
   if(extName !== '.csv'){
-    fs.renameSync(resolved, csv);
+    try{
+      fs.renameSync(resolved, csv);
+    }catch(e){
+      return cb(e);
+    }
   }
 
   readUntil(csv, '\n', function(err, buf){
@@ -82,4 +86,3 @@ function csvToVrt(fileName, srs, cb){
 }
 
 module.exports = csvToVrt;
-odule.exports = csvToVrt;
