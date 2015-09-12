@@ -48,11 +48,11 @@ function csvToVrt(fileName, srs, cb){
   var dirname = path.dirname(resolved);
   var tmpdir = path.join(dirname, 'vrttmpdir');
   var currtmp = path.join(tmpdir, crypto.pseudoRandomBytes(10).toString('hex'));
-  var relativePos = path.join('..', '..', basename);
 
   var csv = path.join(dirname, basename + '.csv');
   var tmpcsv = path.join(currtmp, basename + '.csv');
   var vrt = path.join(currtmp, basename + '.vrt');
+  var relativePos = path.join('..', '..', path.basename(csv));
 
   try{
     fs.mkdirSync(tmpdir);
@@ -96,7 +96,7 @@ function csvToVrt(fileName, srs, cb){
 
     fs.writeFile(
       vrt,
-      util.format(template, relativePos, path.basename(csv), srs, x, y),
+      util.format(template, basename, relativePos, srs, x, y),
       function(err){
         if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
         cb(null, vrt);
