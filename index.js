@@ -68,41 +68,47 @@ function csvToVrt(fileName, srs, cb){
 
   if(extName !== '.csv'){
     try{
-      fs.renameSync(resolved, tmpcsv);
+      fs.createReadStream(resolved).pipe(fs.createWriteStream(tmpcsv)).on('finish', function(err){
+        if(err) return cb(err);
+        run();
+      });
       relativePos = basename;
       csv = tmpcsv;
     }catch(e){
       return cb(e);
     }
+  }else{
+    run();
   }
 
+  function run(){
+    readUntil(csv, '\n', function(err, buf){
+      if(err) return cb(err);
+      var headers = buf.toString().split(/\s*,\s*/);
+      var x;
+      var y;
 
-  readUntil(csv, '\n', function(err, buf){
-    if(err) return cb(err);
-    var headers = buf.toString().split(/\s*,\s*/);
-    var x;
-    var y;
-
-    for(var i=0; i<headers.length; i++){
-      var header = headers[i].toLowerCase();
-      if(latNames[header]) y = header;
-      if(lonNames[header]) x = header;
-      if(x && y) break;
-    }
-
-    if(!(x && y)){
-      return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
-    }
-
-    fs.writeFile(
-      vrt,
-      util.format(template, basename, relativePos, srs, x, y),
-      function(err){
-        if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
-        cb(null, vrt);
+      for(var i=0; i<headers.length; i++){
+        var header = headers[i].toLowerCase();
+        if(latNames[header]) y = header;
+        if(lonNames[header]) x = header;
+        if(x && y) break;
       }
-    )
-  })
+
+      if(!(x && y)){
+        return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
+      }
+
+      fs.writeFile(
+        vrt,
+        util.format(template, basename, relativePos, srs, x, y),
+        function(err){
+          if(err) return cb(new Error('Couldn\'t automatically wrap ' + csv + ' in a vrt file. Do this manually or convert to GeoJSON.'));
+          cb(null, vrt);
+        }
+      )
+    })
+  }
 }
 
 module.exports = csvToVrt;

@@ -1,6 +1,6 @@
 {
   "name": "csv-to-vrt",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Auto-wrap .csv's to .vrt's with semi-intelligent xy field name guessing.",
   "main": "index.js",
   "scripts": {
